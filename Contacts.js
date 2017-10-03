@@ -25,22 +25,11 @@ class Cell extends Component {
     }
 
     getIndicatorStyle() {
-        var style = {
-            width: 16,
-            height: 16,
-            borderRadius: 8,
-            borderWidth: 8
-        };
         if (this.state.isSelected) {
-                style.backgroundColor = '#00CCFF';
-                style.borderColor = '#00CCFF';
-
+            return styles.IndicatorSelected;
         } else {
-                style.borderColor = 'white';
-
+            return styles.Indicator;
         }
-
-        return style;
     }
 
     getTextStyle() {
@@ -243,10 +232,21 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     Indicator:{
-        justifyContent: 'center',
-        paddingLeft: 10,
-        flexDirection: 'row',
-        height: 50
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        borderWidth: 8,
+        borderColor:'white',
+
+    },
+    IndicatorSelected:{
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        borderWidth: 8,
+        backgroundColor : '#00CCFF',
+        borderColor : '#00CCFF',
+
     },
     captionText:{
         fontSize: 15,
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     },
     confirmText: {
         fontSize: 25,
-        color: 'red',
+        color: '#00CCFF',
         marginRight: 20,
     },
 });
