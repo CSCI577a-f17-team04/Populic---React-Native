@@ -34,9 +34,12 @@ var startGame = React.createClass({
         return { checked : this.props.initClick};
     },
 
+
     showNewsDetailView() {
         console.log('点击cell')
     },
+
+
 
 
     render(){
@@ -65,6 +68,7 @@ var startGame = React.createClass({
                     <View style = {styles.challengersOne}>
                         <Text style = {styles.captionText}> Annie </Text>
                     </View>
+
                     <View style = {styles.challengersLine}></View>
 
                     <View style = {styles.challengersTwo}>
@@ -75,8 +79,8 @@ var startGame = React.createClass({
 
                 <View style={styles.challengeButton} >
                     <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
-                    <TouchableOpacity   >
-                        <Text style={styles.btnText}> do it</Text>
+                    <TouchableOpacity >
+                        <Text style={styles.captionText}> DO IT</Text>
                     </TouchableOpacity>
 
                 </View>
@@ -84,7 +88,7 @@ var startGame = React.createClass({
 
 
                 <View  style={styles.upChallengeContentCaption}>
-                    <Text style={styles.captionText}> upcoming challenge </Text>
+                    <Text style={styles.captionText}> Upcoming Challenge </Text>
                 </View>
                 <View style={styles.upComingChallenge} >
 
@@ -98,10 +102,9 @@ var startGame = React.createClass({
                     </View>
                 </View>
 
-                <View style={styles.submitButton} >
-                    <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
+                <View style={styles.submitButton}>
                     <TouchableOpacity   >
-                        <Text style={styles.btnText}> Submit Your Idea</Text>
+                        <Text style={styles.captionText}> Submit Your Idea</Text>
                     </TouchableOpacity>
 
                 </View>
@@ -178,15 +181,13 @@ var startGame = React.createClass({
 });
 
 
-
-
 const styles = StyleSheet.create({
     upChallengeContentCaption:{
         marginTop:50,
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
-        top: 40
+        top: 70
 
     },
     buttonStyle:{
@@ -223,17 +224,21 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
+        position: "absolute"
 
     },
 
     challengersLine:{
 
-        left: 80,
+        left: 120,
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
-        borderColor:"black",
-        borderWidth: 2
+        borderColor:"white",
+        borderWidth: 1,
+        paddingTop: 60,
+        paddingBottom: 40,
+        position: "absolute"
     },
 
 
@@ -241,12 +246,13 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
-        left: 140
+        left: 200,
+        position: "absolute"
     },
 
     upChallengeContent:{
         flexDirection:'column',
-        top: 50
+        top: 90
     },
     upComingChallenge:{
 
@@ -254,32 +260,41 @@ const styles = StyleSheet.create({
         alignItems:'center',
         justifyContent:"center",
         margin:10,
+
     },
 
     submitButton:{
-        backgroundColor:"#5CACEE",
+        backgroundColor:"#277DE0",
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
         margin:10,
-        borderWidth:3,
+        borderWidth:2,
         borderColor:"white",
         borderRadius:5,
         padding:8,
-        top:90
+        top:120,
+        paddingVertical: 5,
+        paddingRight:1,
+        paddingLeft:1,
+        
+        
     },
 
     challengeButton:{
-        backgroundColor:"green",
+        backgroundColor:"#83E027",
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
         margin:10,
-        borderWidth:3,
+        borderWidth:2,
+        paddingVertical: 8,
+        paddingRight: 1,
+        paddingLeft: 1,
         borderColor:"white",
         borderRadius:5,
-        padding:10,
-        top: 80
+        padding:5,
+        top: 100
     },
     challengeContent:{
         flexDirection:'row',
@@ -305,7 +320,7 @@ const styles = StyleSheet.create({
     },
     popScreen:{
         position:"relative",
-        backgroundColor: "#84c1ff",
+        backgroundColor: "#4AA0DF",
         width: Dimensions.get('window').width-(Dimensions.get('window').width)/7,
         height: Dimensions.get('window').height-(Dimensions.get('window').height)/7,
         left:(Dimensions.get('window').width)/14,
