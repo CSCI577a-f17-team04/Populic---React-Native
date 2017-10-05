@@ -25,7 +25,7 @@ import {Navigator} from 'react-native-deprecated-custom-components'
 import {Connect} from "../../views/Challenge/connect";
 
 //var Connect = require("../../views/Challenge/connect");
-var gameIsOn = React.createClass({
+var startGame = React.createClass({
     connectSever (){
         Connect();
     },
@@ -34,15 +34,17 @@ var gameIsOn = React.createClass({
         return { checked : this.props.initClick};
     },
 
+
     showNewsDetailView() {
         console.log('点击cell')
     },
 
 
+
+
     render(){
      //   const { navigate } = this.props.navigation;
         //const { callback1 } = this.props.callbackParent;
-
         return(
 
             <View style={styles.popScreen}>
@@ -64,57 +66,49 @@ var gameIsOn = React.createClass({
                 <View style = {styles.challengersContent}>
                     <View style = {styles.challengersOne}>
                         <Text style = {styles.captionText}> Annie </Text>
-                        <Text style = {styles.timeLeftText}>8:33</Text>
+                        <View style = {styles.verification}>
+                            <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
+                            <Text style = {styles.timeLeftText}>8:33</Text>
+                        </View>
                     </View>
-                    
+
                     <View style = {styles.challengersLine}></View>
 
                     <View style = {styles.challengersTwo}>
                         <Text style = {styles.captionText}> Jason </Text>
-                        <Text style = {styles.timeLeftText}>8:33</Text>
+                        <View style = {styles.verification}>
+                            <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
+                            <Text style = {styles.timeLeftText}>8:33</Text>
+                        </View>
                     </View>
                 </View>
 
-
-                // <View style={styles.challengeButton} >
-                //     <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
-                //     <TouchableOpacity   >
-                //         <Text style={styles.btnText}> do it </Text>
-                //     </TouchableOpacity>
-                // </View>
-
-
                 <View  style={styles.upChallengeContentCaption}>
-                    <Text style={styles.captionText}> upcoming challenge </Text>
+                    <Text style={styles.captionText}> Upcoming Challenge </Text>
                 </View>
                 <View style={styles.upComingChallenge} >
 
                     <View style={styles.upChallengeContent}>
-                        <Text style={styles.textProperty }> Eat banana in 7 second </Text>
-                        <Text style={styles.textProperty }> shotgun a beer </Text>
+                        <Text style={styles.textProperty }> Eat banana in 7 second</Text>
+                        <Text style={styles.textProperty }> shotgun a beer</Text>
                     </View>
                     <View style={styles.upChallengeContent}>
-                        <Text style={styles.textProperty }> Eat banana in 7 second </Text>
-                        <Text style={ styles.textProperty }> shotgun a beer </Text>
+                        <Text style={styles.textProperty }> Eat banana in 7 second</Text>
+                        <Text style={ styles.textProperty }> shotgun a beer</Text>
                     </View>
                 </View>
 
-                <View style={styles.submitButton} >
-                    <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
-                    <TouchableOpacity   >
-                        <Text style={styles.btnText}> Submit Your Idea</Text>
+                <View style={styles.submitButton}>
+                    <TouchableOpacity>
+                        <Text style={styles.captionText}> Submit Your Idea</Text>
                     </TouchableOpacity>
-
                 </View>
                 <View >
-
-
                     {this.renderContent()}
                 </View>
             </View>
         );
     },
-
 
      renderContent() {
        Connect().then(function (DailyCompetitor) {
@@ -125,8 +119,6 @@ var gameIsOn = React.createClass({
                    console.log(DailyCompetitor.DailyCompetitor[i].name);
                }});
     },
-
-
 
     //     // let array = [];
     //     // array = this.getData();
@@ -171,17 +163,20 @@ var gameIsOn = React.createClass({
 });
 
 
-
-
 const styles = StyleSheet.create({
     upChallengeContentCaption:{
         marginTop:50,
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
-        top: 40
+        top: 100
 
     },
+
+    verification:{
+        flexDirection:'row',
+    },
+
     buttonStyle:{
         borderWidth:3,
         borderColor:"white",
@@ -213,33 +208,38 @@ const styles = StyleSheet.create({
     },
 
     challengersOne:{
-        flexDirection:'row',
+        flexDirection:'column',
         alignItems:'center',
         justifyContent:"center",
+        position: "absolute"
 
     },
 
     challengersLine:{
 
-        left: 80,
+        left: 120,
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
-        borderColor:"black",
-        borderWidth: 2
+        borderColor:"white",
+        borderWidth: 1,
+        paddingTop: 60,
+        paddingBottom: 40,
+        position: "absolute"
     },
 
 
     challengersTwo:{
-        flexDirection:'row',
+        flexDirection:'column',
         alignItems:'center',
         justifyContent:"center",
-        left: 140
+        left: 200,
+        position: "absolute"
     },
 
     upChallengeContent:{
         flexDirection:'column',
-        top: 50
+        top: 120
     },
     upComingChallenge:{
 
@@ -247,32 +247,41 @@ const styles = StyleSheet.create({
         alignItems:'center',
         justifyContent:"center",
         margin:10,
+
     },
 
     submitButton:{
-        backgroundColor:"#5CACEE",
+        backgroundColor:"#277DE0",
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
         margin:10,
-        borderWidth:3,
+        borderWidth:2,
         borderColor:"white",
         borderRadius:5,
         padding:8,
-        top:90
+        top:140,
+        paddingVertical: 5,
+        paddingRight:1,
+        paddingLeft:1,
+        
+        
     },
 
     challengeButton:{
-        backgroundColor:"green",
+        backgroundColor:"#83E027",
         flexDirection:'row',
         alignItems:'center',
         justifyContent:"center",
         margin:10,
-        borderWidth:3,
+        borderWidth:2,
+        paddingVertical: 8,
+        paddingRight: 1,
+        paddingLeft: 1,
         borderColor:"white",
         borderRadius:5,
-        padding:10,
-        top: 80
+        padding:5,
+        top: 100
     },
     challengeContent:{
         flexDirection:'row',
@@ -298,14 +307,14 @@ const styles = StyleSheet.create({
     },
     popScreen:{
         position:"relative",
-        backgroundColor: "#84c1ff",
+        backgroundColor: "#4AA0DF",
         width: Dimensions.get('window').width-(Dimensions.get('window').width)/7,
         height: Dimensions.get('window').height-(Dimensions.get('window').height)/7,
         left:(Dimensions.get('window').width)/14,
         flexDirection:'column',
         padding:30,
         borderColor: "white",
-        borderWidth:3
+        borderWidth:2
     }
 });
 module.exports = startGame;
