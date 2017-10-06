@@ -34,7 +34,6 @@ var startGame = React.createClass({
         return { checked : this.props.initClick};
     },
 
-
     showNewsDetailView() {
         console.log('点击cell')
     },
@@ -76,7 +75,6 @@ var startGame = React.createClass({
                     </View>
                 </View>
 
-
                 <View style={styles.challengeButton} >
                     <Image style = {styles.captionImage } source={require('../../images/pin.png')}/>
                     <TouchableOpacity >
@@ -110,18 +108,11 @@ var startGame = React.createClass({
                 </View>
                 <View >
 
-
                     {this.renderContent()}
 
                 </View>
 
-
             </View>
-
-
-
-
-
         );
     },
 
