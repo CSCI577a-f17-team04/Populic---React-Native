@@ -293,9 +293,6 @@ class Login extends Component {
               </Annotation>
 
             </MapView>
-           <View style={styles.challenge}>
-               <Text onPress={this.displayChallenge.bind(this)}>challenge</Text>
-           </View>
            {/*<Navigator*/}
                {/*initialRoute={{component: challenge}}*/}
                {/*selected={this.state.selectItem == 'challenge'}*/}
@@ -311,14 +308,14 @@ class Login extends Component {
                    visible={this.state.modalVisible}
                    onRequestClose={() => {alert("Modal has been closed.")}}
                >
-              <View style = { position = "absolute"} >
-              <TouchableHighlight style = { styles.button } onPress={() => {
-              this.setModalVisible(!this.state.modalVisible)
-              }}>
-              <Image style ={ styles.image1}  source={require('../../images/pin.png')}/>
-              </TouchableHighlight>
-                <Challenge1 callbackParent = {this.onChildChanged} navigation = {this.props.navigation} ></Challenge1>
-              </View>
+                <View style = { position = "absolute"} >
+                    <TouchableHighlight style = { styles.button } onPress={() => {
+                    this.setModalVisible(!this.state.modalVisible)
+                    }}>
+                        <Image style ={styles.imageOne}  source={require('../../images/icons8-Cancel-48.png')}/>
+                    </TouchableHighlight>
+                    <Challenge1 callbackParent = {this.onChildChanged} navigation = {this.props.navigation} visibility = {this.state.modalVisible}/>
+                </View>
 
                </Modal>
 
@@ -327,7 +324,7 @@ class Login extends Component {
                    this.setModalVisible(true)
                }}>
                    <View style={styles.challenge}>
-                       <Text>challenge</Text>
+                       <Image style = {{height:40,width:40} } source={require('../../images/lace-2.png')}/>
                    </View>
                </TouchableHighlight>
 
