@@ -126,7 +126,6 @@ class SelectableContactsList extends Component {
         this.setState({clicked:true});
     }
     onPress(item,index) {
-        //this.setState({ isSelected: !this.state.isSelected },{count: this.state.count+1});
         this.setState((state) => Object.assign({}, state,{ clicked: !this.state.clicked },));
         this.setState({index:index});
         if(this.state.clicked === true){this.setState({count2:this.state.count2-1})}
