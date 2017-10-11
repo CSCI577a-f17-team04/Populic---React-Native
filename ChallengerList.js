@@ -58,7 +58,7 @@ export default class ChallengerList extends Component{
     showHideCheck(index){
         if(this.state.index===index && this.state.clicked) {
             return (
-                <Image style={styles.checkMark} source={require('../icons/check.png')}/>
+                <Image style={styles.checkMark} source={require('../../images/check.png')}/>
             );
         }
     }
@@ -80,19 +80,20 @@ export default class ChallengerList extends Component{
     // };
 
     renderItemComponent = ({item, index}) => {
-        return (
-            <TouchableHighlight
+        if (this.props.whoPaired != (item.name.first + ' ' + item.name.last)) {
+            return (
+                <TouchableHighlight
 
-                onPress={() => this._onPress(item, index)}>
-                <View style={[styles.item, (this.state.index===index) && this.state.clicked && {backgroundColor: '#3a99bb'}]}>
-                    <Text style ={styles.number}>{index + 1} {'  '}</Text>
-                    <Image style = {styles. portraitImage } source={{uri:item.picture.thumbnail}} />
-                    <Text style = {styles.itemText}>{'      '} {item.name.first}{' '}{item.name.last}</Text>
-                    {this.showHideCheck(index)}
-                </View>
+                    onPress={() => this._onPress(item, index)}>
+                    <View
+                        style={[styles.item, (this.state.index === index) && this.state.clicked && {backgroundColor: '#8CEA4D'}]}>
+                        <Text style={styles.itemText}>{'      '} {item.name.first}{' '}{item.name.last}</Text>
+                        {/*{this.showHideCheck(index)}*/}
+                    </View>
 
-            </TouchableHighlight>
-        );
+                </TouchableHighlight>
+            );
+        }
     };
 
     makeRemoteRequest = () => {
@@ -113,6 +114,8 @@ export default class ChallengerList extends Component{
             });
     };
 
+    _keyExtractor = (item, index) => item.name.first;
+
     render(){
 
         return(
@@ -122,6 +125,7 @@ export default class ChallengerList extends Component{
                 renderItem = {this.renderItemComponent}
                 ListHeaderComponent = {this._header}
                 ItemSeparatorComponent = { ItemDivideComponent }
+                keyExtractor = {this._keyExtractor}
                 getItemLayout = {(data,index)=>(
                      {length: ITEM_HEIGHT, offset: (ITEM_HEIGHT + 1) * index, index}
                 )}
@@ -151,7 +155,7 @@ const styles = StyleSheet.create({
     },
     item:{
         flexDirection:'row',
-        backgroundColor: '#08739c',
+        backgroundColor: '#4A90E2',
         height:ITEM_HEIGHT,
         // justifyContent:"space-around",
         alignItems:'center',
@@ -159,7 +163,7 @@ const styles = StyleSheet.create({
     },
     itemAlt:{
         flexDirection:'row',
-        backgroundColor: '#3a99bb',
+        backgroundColor: '#8CEA4D',
         height:ITEM_HEIGHT,
         // justifyContent:"space-around",
         alignItems:'center',
@@ -167,6 +171,7 @@ const styles = StyleSheet.create({
     },
     itemText:{
         fontSize: 16,
+        fontWeight: 'bold',
         color:'white',
         textAlign:'left',
         width:Dimensions.get('window').width * 2 / 3,
