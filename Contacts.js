@@ -293,14 +293,27 @@ class SelectableContactsList extends Component {
         return MCellProps;
     }
 
-    render() {
-        const { navigate } = this.props.navigation;
-        return (
+    clickBack() {
+        this.props.callbackfromContacts(false);
+        //this.props.callbackParent(modalVisible);
+    }
 
+    _keyExtractor = (item, index) => item.name.first;
+
+    render() {
+        //const { navigate } = this.props.navigation;
+        return (
+            <Modal
+
+             //   animationType={"fade"}
+               // transparent={true}
+                visible={this.props.showContact}
+            >
             <View style={{ flex: 1 }}>
 
+
                 <View style={styles.firstView}>
-                    <TouchableOpacity  onPress={() => { navigate('Map', {name: 'Test1'}); } } >
+                    <TouchableOpacity  onPress={() => {this.clickBack()}} >
                         <Text style={styles.cancelButton}>Cancel</Text>
                     </TouchableOpacity>
                     <Text style={styles.midTitle}>Challenge</Text>
@@ -327,7 +340,7 @@ class SelectableContactsList extends Component {
                         style = {styles.list}
                         data = {this.state.data}
                         renderItem = {this.renderItemComponent}
-                        ListHeaderComponent = {this._header}
+                        keyExtractor = {this._keyExtractor}
                         getItemLayout = {(data,index)=>(
                             {length: 30, offset: (30 + 1) * index, index}
                         )}
@@ -352,7 +365,7 @@ class SelectableContactsList extends Component {
                         ()=> {
                             // Communications.text('3235946776','You got a challenge invitation, download populic to check details');
                             Alert.alert(
-                                this.state.count+this.state.count2+` Inivation Sent`,
+                                this.state.count+this.state.count2+` Invitation(s) Sent`,
                             )
                         }
                     } >
@@ -361,7 +374,9 @@ class SelectableContactsList extends Component {
 
                     </TouchableOpacity>
                 </View>
+
             </View>
+            </Modal>
 
         );
     }
