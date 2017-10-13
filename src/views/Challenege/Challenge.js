@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 
 import { View, Text, Image, Alert,Button, AsyncStorage,StyleSheet, Text as TextReact, Share, Modal, Keyboard, Easing, FlatList, ScrollView, Dimensions, InteractionManager, TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight} from 'react-native';
-import one from '../../views/challenge/Suggestion';
+//import one from '../../views/challenge/Suggestion';
 import {Navigator} from 'react-native-deprecated-custom-components'
-import ContactList from '../../views/challenge/Contacts';
-import ChooseChallenger from '../../views/challenge/ChallengerChoosePage';
-import App from '../../views/challenge/Settings';
-
+//import ContactList from '../../views/Challenge/Contacts';
+import ChooseChallenger from '../../views/Challenge/ChallengerChoosePage';
+import App from '../../views/Challenge/Settings';
+import Idea from '../../views/Challenge/Idea'
 // const challengeIcon = '../../images/lace-2.png';
 
 var timer1 = null;
@@ -16,22 +16,26 @@ var timer3 = null;
 var Challenge = React.createClass({
 
 
-
     getInitialState: function () {
         return {
-            checked : this.props.initClick,
+            checked: this.props.initClick,
             showCancel: false,
             modalVisible: false,
             isGameOn: false,
             contactVisible: false,
-            hour : (23 - new Date().getHours()),
-            minute : (59 - new Date().getMinutes()),
-            second : (59 - new Date().getSeconds()),
+            hour: (23 - new Date().getHours()),
+            minute: (59 - new Date().getMinutes()),
+            second: (59 - new Date().getSeconds()),
             completeTime: [],
             showConfirm: false,
             doItVisible: true,
+            ideaVisible: false,
             isConfirm: false,
             isDeclineOther: false,
+            upcoming:null,
+            load:false,
+            todayChallenge: null,
+            challengers: null,
         };
     },
 
@@ -39,26 +43,29 @@ var Challenge = React.createClass({
         console.log('点击cell')
     },
 
-    getHours(){
+    getHours() {
         h = (23 - new Date().getHours());
-        this.setState({hour:h});
+        //this.setState({hour: h});
     },
 
-    getMin(){
+    getMin() {
         min = (59 - new Date().getMinutes());
-        this.setState({minute:min});
+        //this.setState({minute: min});
     },
 
-    getSec(){
+    getSec() {
         sec = (59 - new Date().getSeconds());
-        this.setState({second:sec});
+        //this.setState({second: sec});
     },
 
-    componentDidMount(){
-        timer1 = setInterval(()=>this.getSec(),1000);
-        timer2 = setInterval(()=>this.getMin(),1000);
-        timer3 = setInterval(()=>this.getHours(),1000);
+    componentDidMount() {
+        timer1 = setInterval(() => this.getSec(), 1000);
+        timer2 = setInterval(() => this.getMin(), 1000);
+        timer3 = setInterval(() => this.getHours(), 1000);
+        this.getData();
     },
+
+
 
     componentWillUnmount(){
         clearInterval(timer1);
@@ -77,6 +84,33 @@ var Challenge = React.createClass({
 
     setDoItVisible(visible){
         this.setState({doItVisible: visible});
+    },
+
+    setideaVisible(visible){
+        this.setState({ideaVisible: visible});
+    },
+
+     getData(){
+         const url = `http://localhost/`;
+         //this.setState({ loading: true });
+         return fetch(url)
+             .then((response) => response.json())
+             .then((responseJson) => {
+                 console.log(responseJson.DailyChallenge+"xl");
+                 this.setState({
+                     upcoming:responseJson.UpcomingChallenge,
+                     todayChallenge:responseJson.DailyChallenge,
+                     challengers: responseJson.Challengers,
+                 });
+
+             })
+             .catch(error => {
+                 throw  error
+             });
+     },
+
+    updateUpchallenging(){
+
     },
 
     showDoIt(){
@@ -178,7 +212,7 @@ var Challenge = React.createClass({
                 <View style={styles.GameOff}>
                     <TouchableOpacity style={styles.submitButton}
                                       onPress={() => this.setModalVisible(!this.state.modalVisible)}>
-                        <Text style={styles.btnText}> View Challengers</Text>
+                        {this.renderChallengers()}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.submitButton} onPress={() => {
@@ -187,8 +221,8 @@ var Challenge = React.createClass({
                             <Image style={styles.captionImage} source={require('../../images/lace-2.png')}/>
                             <Text style={styles.btnText}> Challenge Your Friends</Text>
                     </TouchableOpacity>
-                    <ContactList callbackfromContacts={this.setContactVisible}
-                                     showContact={this.state.contactVisible}/>
+                    {/*<ContactList callbackfromContacts={this.setContactVisible}*/}
+                                     {/*showContact={this.state.contactVisible}/>*/}
 
                 </View>
             );
@@ -342,9 +376,7 @@ var Challenge = React.createClass({
                     </Text>
                 </View>
 
-                <View style={{alignItems:'center'}}>
-                    <Text style={styles.subCaptionText}>Give a hug to random person</Text>
-                </View>
+                {this.renderTodayChallenge()}
 
                 {this.showChallengers()}
 
@@ -354,24 +386,17 @@ var Challenge = React.createClass({
                     </View>
                     <View style={styles.upComingChallenge}>
 
-                        <View style={styles.upChallengeContent}>
-                            <Text style={styles.textProperty}> Eat banana in 7 seconds</Text>
-                            <Text style={styles.textProperty}> Scare your roommate</Text>
-                        </View>
-
-                        <View style={styles.upChallengeContent}>
-                            <Text style={styles.textProperty}> Shotgun a beer</Text>
-                            <Text style={styles.textProperty}> Ask cashier’s number at Village Dining hall</Text>
-                        </View>
+                        {this.renderUpcomingChallenge()}
 
                     </View>
-                    {/*<View style = {{alignItems:'center'}}>*/}
-                        {/*<TouchableOpacity style={styles.submitButton}>*/}
-                            {/*<Text style={styles.btnText}> Submit Your Idea</Text>*/}
-                        {/*</TouchableOpacity>*/}
-                    {/*</View>*/}
-                </View>
+                    <View style = {{alignItems:'center'}}>
+                        <TouchableOpacity style={styles.submitButton} onPress={() => {this.setideaVisible(!this.state.ideaVisible)}}>
+                            <Text style={styles.btnText}> Submit Your Idea</Text>
+                        </TouchableOpacity>
 
+                    </View>
+                </View>
+                <Idea showBox = { this.state.ideaVisible}></Idea>
                 <ChooseChallenger callbackParent={this.setModalVisible} showPage={this.state.modalVisible}
                                   gameOn={this.setGameOn}/>
                 {/*<View>*/}
@@ -386,6 +411,65 @@ var Challenge = React.createClass({
             </View>
         );
     },
+
+    renderChallengers(){
+        let content = [];
+
+        if( this.state.challengers == null){
+            content.push(
+                <View >
+                    <Text style={styles.subCaptionText}>No one challenge</Text>
+                </View>)
+
+        }else{
+
+            let count = this.state.challengers.length;
+            content.push(
+                <View >
+                    <Text style={styles.subCaptionText}>There are {count} challengers</Text>
+                </View>)
+        }
+        return content;
+    },
+    renderTodayChallenge(){
+
+        let content = [];
+        if(this.state.todayChallenge == null){
+            content.push(<View style={{alignItems:'center'}}>
+                <Text style={styles.subCaptionText}>Give a hug to random person1</Text>
+            </View>)
+        }else{
+
+            let challengeContent = this.state.todayChallenge[0];
+
+            content.push(<View style={{alignItems:'center'}}>
+                <Text style={styles.subCaptionText}>{challengeContent.content}</Text>
+            </View>)
+        }
+        return content
+    },
+    renderUpcomingChallenge() {
+
+        if( this.state.upcoming == null ){
+            return;
+        }
+        var competitor = [];
+        let dailyCompetitor = this.state.upcoming.UpcomingChallenge;
+        // traverse
+
+        for (var i = 0; i < this.state.upcoming.length; i += 2) {
+            let itemLeft = this.state.upcoming[i];
+            let itemRight = this.state.upcoming[i + 1];
+            competitor.push(
+               <View style={styles.upChallengeContent}>
+                    <Text  style={styles.textProperty}> {itemLeft.content}</Text>
+                    <Text style={styles.textProperty}>  {itemRight.content}</Text>
+                </View>
+            )
+        }
+        //console.log(competitor);
+        return competitor;
+    }
 
 });
 
