@@ -5,13 +5,19 @@ import { View, Text, Image, Alert,Button, AsyncStorage,StyleSheet, Text as TextR
 import {Navigator} from 'react-native-deprecated-custom-components'
 //import ContactList from '../../views/Challenge/Contacts';
 import ChooseChallenger from '../../views/Challenge/ChallengerChoosePage';
+import Suggestion from '../../views/Challenge/Suggestion';
+import ChallengeDetail from '../../views/Challenge/ChallengeDetail'
 import App from '../../views/Challenge/Settings';
 import Idea from '../../views/Challenge/Idea'
 // const challengeIcon = '../../images/lace-2.png';
+import challengeAct from'../../actions/challengeAction'
+import {Connect} from "../../views/Challenge/connect";
+import {ChallengeAction} from "../../actions/challengeAction"
 
 var timer1 = null;
 var timer2 = null;
 var timer3 = null;
+
 
 var Challenge = React.createClass({
 
@@ -30,12 +36,16 @@ var Challenge = React.createClass({
             showConfirm: false,
             doItVisible: true,
             ideaVisible: false,
+            suggestionVisible: false,
             isConfirm: false,
             isDeclineOther: false,
             upcoming:null,
             load:false,
             todayChallenge: null,
-            challengers: null,
+            friends: null,
+            challengers:null,
+            paired: false,
+            challengeDetail: false,
         };
     },
 
@@ -86,21 +96,34 @@ var Challenge = React.createClass({
         this.setState({doItVisible: visible});
     },
 
+    setChallengeDetail(visible){
+        this.setState({challengeDetail: visible});
+    },
+
     setideaVisible(visible){
         this.setState({ideaVisible: visible});
     },
-
+    setSuggestionVisible(visible){
+        this.setState({ suggestionVisible:visible});
+    },
+    onCloseSuggestion(){
+        this.setSuggestionVisible(!this.state.suggestionVisible);
+    },
+    onCloseDetail(){
+        this.setChallengeDetail(!this.state.challengeDetail);
+    },
      getData(){
+
          const url = `http://localhost/`;
          //this.setState({ loading: true });
          return fetch(url)
              .then((response) => response.json())
              .then((responseJson) => {
-                 console.log(responseJson.DailyChallenge+"xl");
                  this.setState({
                      upcoming:responseJson.UpcomingChallenge,
                      todayChallenge:responseJson.DailyChallenge,
-                     challengers: responseJson.Challengers,
+                     friends: responseJson.Challengers,
+                     paired:responseJson.pairedstate,
                  });
 
              })
@@ -210,16 +233,19 @@ var Challenge = React.createClass({
         if (!this.state.isGameOn) {
             return (
                 <View style={styles.GameOff}>
-                    <TouchableOpacity style={styles.submitButton}
-                                      onPress={() => this.setModalVisible(!this.state.modalVisible)}>
-                        {this.renderChallengers()}
+                    <TouchableOpacity >
+                    {this.renderChallengers()}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => this.setModalVisible(!this.state.modalVisible)}>
+                        {this.renderFriends()}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.submitButton} onPress={() => {
                             this.setContactVisible(!this.state.contactVisible)
                         }}>
-                            <Image style={styles.captionImage} source={require('../../images/lace-2.png')}/>
-                            <Text style={styles.btnText}> Challenge Your Friends</Text>
+                            {/*<Image style={styles.captionImage} source={require('../../images/lace-2.png')}/>*/}
+                            <Text style={styles.btnText}> Challenge your friends</Text>
                     </TouchableOpacity>
                     {/*<ContactList callbackfromContacts={this.setContactVisible}*/}
                                      {/*showContact={this.state.contactVisible}/>*/}
@@ -359,8 +385,10 @@ var Challenge = React.createClass({
     },
 
     render: function () {
+
         const {navigate} = this.props.navigation;
         const {callback1} = this.props.callbackParent;
+        console.log(this.state.todayChallenge + "aa");
         return (
 
             <View style={styles.popScreen}>
@@ -377,7 +405,8 @@ var Challenge = React.createClass({
                 </View>
 
                 {this.renderTodayChallenge()}
-
+                {ChallengeDetail}
+                <ChallengeDetail callbackParent = {this.onCloseDetail} showBox = { this.state.challengeDetail} ></ChallengeDetail>
                 {this.showChallengers()}
 
                 <View>
@@ -390,13 +419,13 @@ var Challenge = React.createClass({
 
                     </View>
                     <View style = {{alignItems:'center'}}>
-                        <TouchableOpacity style={styles.submitButton} onPress={() => {this.setideaVisible(!this.state.ideaVisible)}}>
+                        <TouchableOpacity style={styles.submitButton} onPress={() => {this.setSuggestionVisible(!this.state.suggestionVisible)}}>
                             <Text style={styles.btnText}> Submit Your Idea</Text>
                         </TouchableOpacity>
-
                     </View>
                 </View>
-                <Idea showBox = { this.state.ideaVisible}></Idea>
+                {/*<Image style ={styles.imageOne}  source={require('../../images/icons8-Cancel-48.png')}/>*/}
+                <Suggestion callbackParent = {this.onCloseSuggestion} showBox = { this.state.suggestionVisible}></Suggestion>
                 <ChooseChallenger callbackParent={this.setModalVisible} showPage={this.state.modalVisible}
                                   gameOn={this.setGameOn}/>
                 {/*<View>*/}
@@ -411,22 +440,38 @@ var Challenge = React.createClass({
             </View>
         );
     },
-
     renderChallengers(){
         let content = [];
 
-        if( this.state.challengers == null){
+        if(this.state.friends != null){
+            let count = this.state.friends.length;
+            content.push(
+                <TouchableOpacity style={styles.challengerButton} onPress={() => {
+                    this.setContactVisible(!this.state.contactVisible)
+                }}>
+                    <Image style={styles.captionImage} source={require('../../images/right-black-arrow.png')}/>
+                    <Text style={styles.btnText}> {count} Challengers</Text>
+                </TouchableOpacity>
+                )
+        }
+        return content;
+    },
+    renderFriends(){
+        let content = [];
+
+        if(this.state.friends == null){
             content.push(
                 <View >
-                    <Text style={styles.subCaptionText}>No one challenge</Text>
+                    <Text style={styles.challengerFriends}>You don't have Challenge partner</Text>
                 </View>)
 
         }else{
 
-            let count = this.state.challengers.length;
+            let count = this.state.friends.length;
             content.push(
-                <View >
-                    <Text style={styles.subCaptionText}>There are {count} challengers</Text>
+                <View style = {styles.challengersContent}>
+                    <Image style = {styles.challengerImage} source={require('../../images/right-black-arrow.png')}></Image>
+                    <Text style={styles.challengerFriends}> {count} Friends</Text>
                 </View>)
         }
         return content;
@@ -436,15 +481,20 @@ var Challenge = React.createClass({
         let content = [];
         if(this.state.todayChallenge == null){
             content.push(<View style={{alignItems:'center'}}>
-                <Text style={styles.subCaptionText}>Give a hug to random person1</Text>
+                <Text style={styles.subCaptionText}>Give a hug to random person</Text>
             </View>)
         }else{
-
+            //this.state.todayChallenge = this.state.todayChallenge[0];
             let challengeContent = this.state.todayChallenge[0];
 
-            content.push(<View style={{alignItems:'center'}}>
+            content.push(
+                <TouchableOpacity  onPress={() => {
+                    this.setChallengeDetail(!this.state.challengeDetail)
+                }} challengeContent = {this.state.todayChallenge} >
+                <View style={{alignItems:'center'}}>
                 <Text style={styles.subCaptionText}>{challengeContent.content}</Text>
-            </View>)
+            </View>
+                </TouchableOpacity>)
         }
         return content
     },
@@ -462,8 +512,8 @@ var Challenge = React.createClass({
             let itemRight = this.state.upcoming[i + 1];
             competitor.push(
                <View style={styles.upChallengeContent}>
-                    <Text  style={styles.textProperty}> {itemLeft.content}</Text>
-                    <Text style={styles.textProperty}>  {itemRight.content}</Text>
+                    <Text  style={styles.textProperty}>{itemLeft.content}</Text>
+                    <Text style={styles.textProperty}>{itemRight.content}</Text>
                 </View>
             )
         }
@@ -490,12 +540,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#5CACEE'
     },
     timeLeftText:{
-        fontSize: 15,
+        fontSize: 12,
         color:'white',
+        marginRight: 20,
     },
     captionText:{
-        fontSize: 22,
+        fontSize: 20,
         color:'white',
+    },
+    challengerImage:{
+
+        height:18,
+        width: 18,
+        resizeMode: 'contain'
+    },
+    challengerFriends:{
+        fontSize:14,
+        color:'#FFDA44',
+        paddingBottom: 20,
     },
     subCaptionText:{
         fontSize: 18,
@@ -512,38 +574,57 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     textProperty:{
-        fontSize: 14,
+        fontSize: 12,
+        marginLeft:12,
         margin:5,
-        color:'white'
+        color:'white',
+        width : Dimensions.get('window').width /3,
+        flexWrap:"wrap",
+        justifyContent:"flex-start"
+    },
+    upComingChallengeContent:{
+
     },
     upChallengeContent:{
-        width: Dimensions.get('window').width *2.9 / 7,
+        flexDirection:'row',
         alignItems:'stretch',
         justifyContent:'center',
+
     },
     upComingChallenge:{
 
-        flexDirection:'row',
         alignItems:'flex-start',
         justifyContent:'center',
-        width:Dimensions.get('window').width * 5 / 6 - 5,
+        paddingBottom:20,
         margin:10,
-        marginLeft:0,
+
     },
+
+    challengerButton:{
+        backgroundColor:'#0B4C98',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center',
+        borderWidth:2,
+        borderColor:'white',
+        borderRadius:5,
+        paddingVertical: 5,
+        width:220,
+        height:35,
+        marginBottom: 20,
+    },
+
    submitButton:{
         backgroundColor:'#277DE0',
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'center',
-        margin:10,
         borderWidth:2,
         borderColor:'white',
         borderRadius:5,
-        padding:8,
         paddingVertical: 5,
-        paddingRight:1,
-        paddingLeft:1,
-        width:240,
+        width:220,
+        height:35,
    },
                                  
    challengeContent:{
@@ -555,6 +636,7 @@ const styles = StyleSheet.create({
     timeLeft:{
         alignItems:'flex-end',
         margin: 10,
+        paddingLeft: 50,
     },
     captionImage:{
         width:15,
@@ -565,7 +647,6 @@ const styles = StyleSheet.create({
         height:25,
     },
     caption:{
-
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'center',
@@ -579,12 +660,15 @@ const styles = StyleSheet.create({
         height: Dimensions.get('window').height-(Dimensions.get('window').height)/7,
         left:(Dimensions.get('window').width)/14,
         flexDirection:'column',
-        paddingTop:30,
+        paddingTop:10,
         paddingBottom:30,
         borderColor: 'white',
         borderWidth:3,
         top:30,
         zIndex:-1,
+        fontFamily:"apple"
+
+
     },
     popScreenSmallBackground:{
         position:'relative',
@@ -617,7 +701,7 @@ const styles = StyleSheet.create({
         borderColor:'white',
         borderRadius:5,
         padding:5,
-        width:240,
+        width:260,
 
      },
     challengersButton:{
@@ -631,12 +715,13 @@ const styles = StyleSheet.create({
         borderRadius:5,
     },
     btnText:{
-        color:'white'
+        color:'white',
     },
     modalBackgroundStyle:{
         backgroundColor:  'rgba(0, 0, 0, 0.75)',
     },
     challengersContent:{
+
         flexDirection:'row',
         alignItems:'flex-start',
         justifyContent:'flex-start',
@@ -681,16 +766,19 @@ const styles = StyleSheet.create({
         color:'#40FB1B',
 
     },
+    imageOne:{
+
+    },
     GameOff:{
-        paddingTop: Dimensions.get('window').height / 30,
+        paddingTop: Dimensions.get('window').height / 60,
         paddingBottom: Dimensions.get('window').height / 30,
-        height:Dimensions.get('window').height*2 / 7 + 40,
+        height:Dimensions.get('window').height*2 / 7 ,
         alignItems:'center',
     },
     GameOn:{
         paddingTop: Dimensions.get('window').height / 30,
         paddingBottom: Dimensions.get('window').height / 30,
-        height:Dimensions.get('window').height*2 / 7 + 40,
+        height:Dimensions.get('window').height*2 / 7,
         alignItems:'center',
     }
 
