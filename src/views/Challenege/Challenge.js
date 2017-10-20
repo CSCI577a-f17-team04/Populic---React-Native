@@ -13,7 +13,7 @@ import Idea from '../../views/Challenge/Idea'
 import challengeAct from'../../actions/challengeAction'
 import {Connect} from "../../views/Challenge/connect";
 import {ChallengeAction} from "../../actions/challengeAction"
-
+import Timer from "../../views/Challenge/Timer"
 var timer1 = null;
 var timer2 = null;
 var timer3 = null;
@@ -29,9 +29,9 @@ var Challenge = React.createClass({
             modalVisible: false,
             isGameOn: false,
             contactVisible: false,
-            hour: (23 - new Date().getHours()),
-            minute: (59 - new Date().getMinutes()),
-            second: (59 - new Date().getSeconds()),
+            hour: null,
+            minute: null,
+            second: null,
             completeTime: [],
             showConfirm: false,
             doItVisible: true,
@@ -54,17 +54,17 @@ var Challenge = React.createClass({
     },
 
     getHours() {
-        h = (23 - new Date().getHours());
+        //h = (23 - new Date().getHours());
         //this.setState({hour: h});
     },
 
     getMin() {
-        min = (59 - new Date().getMinutes());
+        //min = (59 - new Date().getMinutes());
         //this.setState({minute: min});
     },
 
     getSec() {
-        sec = (59 - new Date().getSeconds());
+       // sec = (59 - new Date().getSeconds());
         //this.setState({second: sec});
     },
 
@@ -114,7 +114,7 @@ var Challenge = React.createClass({
     },
      getData(){
 
-         const url = `http://localhost/`;
+         const url = `http://192.168.0.10:80`;
          //this.setState({ loading: true });
          return fetch(url)
              .then((response) => response.json())
@@ -124,6 +124,9 @@ var Challenge = React.createClass({
                      todayChallenge:responseJson.DailyChallenge,
                      friends: responseJson.Challengers,
                      paired:responseJson.pairedstate,
+                     hour: 20,
+                     minute:30,
+                     second:59,
                  });
 
              })
@@ -389,56 +392,109 @@ var Challenge = React.createClass({
         const {navigate} = this.props.navigation;
         const {callback1} = this.props.callbackParent;
         console.log(this.state.todayChallenge + "aa");
-        return (
+        console.log(this.state.minute+"xxxxxx")
+        if(this.state.todayChallenge != null ){
 
-            <View style={styles.popScreen}>
+            return (
+                <View style={styles.popScreen}>
 
-                <View style={styles.caption}>
-                    <Image style={styles.captionImageHead} source={require('../../images/lace-2.png')}/>
-                    <Text style={styles.captionText}>{' '}USC Daily Challenge</Text>
-                </View>
-
-                <View style={styles.timeLeft}>
-                    <Text
-                        style={styles.timeLeftText}>{this.showTime()}
-                    </Text>
-                </View>
-
-                {this.renderTodayChallenge()}
-                {ChallengeDetail}
-                <ChallengeDetail callbackParent = {this.onCloseDetail} showBox = { this.state.challengeDetail} ></ChallengeDetail>
-                {this.showChallengers()}
-
-                <View>
-                    <View style={styles.upChallengeContentCaption}>
-                        <Text style={styles.subCaptionText}> Upcoming Challenges</Text>
+                    <View style={styles.caption}>
+                        <Image style={styles.captionImageHead} source={require('../../images/lace-2.png')}/>
+                        <Text style={styles.captionText}>{' '}USC Daily Challenge</Text>
                     </View>
-                    <View style={styles.upComingChallenge}>
 
-                        {this.renderUpcomingChallenge()}
+                    <View style={styles.timeLeft}>
+
+
+                            <Timer hour={this.state.hour} minute = {this.state.minute} second = {this.state.second}></Timer>
+
 
                     </View>
-                    <View style = {{alignItems:'center'}}>
-                        <TouchableOpacity style={styles.submitButton} onPress={() => {this.setSuggestionVisible(!this.state.suggestionVisible)}}>
-                            <Text style={styles.btnText}> Submit Your Idea</Text>
-                        </TouchableOpacity>
+
+                    {this.renderTodayChallenge()}
+                    <ChallengeDetail callbackParent = {this.onCloseDetail} showBox = { this.state.challengeDetail} challengeContent = {this.state.todayChallenge[0].content}> </ChallengeDetail>
+                    {this.showChallengers()}
+
+                    <View>
+                        <View style={styles.upChallengeContentCaption}>
+                            <Text style={styles.subCaptionText}> Upcoming Challenges</Text>
+                        </View>
+                        <View style={styles.upComingChallenge}>
+
+                            {this.renderUpcomingChallenge()}
+
+                        </View>
+                        <View style = {{alignItems:'center'}}>
+                            <TouchableOpacity style={styles.submitButton} onPress={() => {this.setSuggestionVisible(!this.state.suggestionVisible)}}>
+                                <Text style={styles.btnText}> Submit Your Idea</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-                {/*<Image style ={styles.imageOne}  source={require('../../images/icons8-Cancel-48.png')}/>*/}
-                <Suggestion callbackParent = {this.onCloseSuggestion} showBox = { this.state.suggestionVisible}></Suggestion>
-                <ChooseChallenger callbackParent={this.setModalVisible} showPage={this.state.modalVisible}
-                                  gameOn={this.setGameOn}/>
-                {/*<View>*/}
+                    {/*<Image style ={styles.imageOne}  source={require('../../images/icons8-Cancel-48.png')}/>*/}
+                    <Suggestion callbackParent = {this.onCloseSuggestion} showBox = { this.state.suggestionVisible}></Suggestion>
+                    <ChooseChallenger callbackParent={this.setModalVisible} showPage={this.state.modalVisible}
+                                      gameOn={this.setGameOn}/>
+                    {/*<View>*/}
                     {/*<Modal*/}
-                        {/*animationType={'fade'}*/}
-                        {/*transparent={true}*/}
-                        {/*visible={this.state.showConfirm}*/}
-                     {/*>*/}
-                        <App show={this.hideConfirm} confirm={this.setConfirm} decline = {this.setDecline} visible={this.state.showConfirm}/>
+                    {/*animationType={'fade'}*/}
+                    {/*transparent={true}*/}
+                    {/*visible={this.state.showConfirm}*/}
+                    {/*>*/}
+                    <App show={this.hideConfirm} confirm={this.setConfirm} decline = {this.setDecline} visible={this.state.showConfirm}/>
                     {/*</Modal>*/}
-                {/*</View>*/}
-            </View>
-        );
+                    {/*</View>*/}
+                </View>
+            );
+        }else{
+            return (
+                <View style={styles.popScreen}>
+
+                    <View style={styles.caption}>
+                        <Image style={styles.captionImageHead} source={require('../../images/lace-2.png')}/>
+                        <Text style={styles.captionText}>{' '}USC Daily Challenge</Text>
+                    </View>
+
+                    <View style={styles.timeLeft}>
+
+                    </View>
+
+                    {this.renderTodayChallenge()}
+
+                    {this.showChallengers()}
+
+                    <View>
+                        <View style={styles.upChallengeContentCaption}>
+                            <Text style={styles.subCaptionText}> Upcoming Challenges</Text>
+                        </View>
+                        <View style={styles.upComingChallenge}>
+
+                            {this.renderUpcomingChallenge()}
+
+                        </View>
+                        <View style = {{alignItems:'center'}}>
+                            <TouchableOpacity style={styles.submitButton} onPress={() => {this.setSuggestionVisible(!this.state.suggestionVisible)}}>
+                                <Text style={styles.btnText}> Submit Your Idea</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    {/*<Image style ={styles.imageOne}  source={require('../../images/icons8-Cancel-48.png')}/>*/}
+                    <Suggestion callbackParent = {this.onCloseSuggestion} showBox = { this.state.suggestionVisible}></Suggestion>
+                    <ChooseChallenger callbackParent={this.setModalVisible} showPage={this.state.modalVisible}
+                                      gameOn={this.setGameOn}/>
+                    {/*<View>*/}
+                    {/*<Modal*/}
+                    {/*animationType={'fade'}*/}
+                    {/*transparent={true}*/}
+                    {/*visible={this.state.showConfirm}*/}
+                    {/*>*/}
+                    <App show={this.hideConfirm} confirm={this.setConfirm} decline = {this.setDecline} visible={this.state.showConfirm}/>
+                    {/*</Modal>*/}
+                    {/*</View>*/}
+                </View>
+            );
+        }
+
+
     },
     renderChallengers(){
         let content = [];
@@ -476,6 +532,9 @@ var Challenge = React.createClass({
         }
         return content;
     },
+    renderDetail(){
+
+    },
     renderTodayChallenge(){
 
         let content = [];
@@ -484,9 +543,9 @@ var Challenge = React.createClass({
                 <Text style={styles.subCaptionText}>Give a hug to random person</Text>
             </View>)
         }else{
+            detailC = this.state.todayChallenge[0].content;
             //this.state.todayChallenge = this.state.todayChallenge[0];
             let challengeContent = this.state.todayChallenge[0];
-
             content.push(
                 <TouchableOpacity  onPress={() => {
                     this.setChallengeDetail(!this.state.challengeDetail)
@@ -494,7 +553,8 @@ var Challenge = React.createClass({
                 <View style={{alignItems:'center'}}>
                 <Text style={styles.subCaptionText}>{challengeContent.content}</Text>
             </View>
-                </TouchableOpacity>)
+                </TouchableOpacity>
+            )
         }
         return content
     },

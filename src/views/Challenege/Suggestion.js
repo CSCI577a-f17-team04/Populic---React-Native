@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput,Navigator, StatusBar,Image,StyleSheet, Button, Dimensions, TouchableOpacity,TouchableHighlight,Modal } from 'react-native';
-
+import Toast from 'react-native-root-toast';
+import { View, Text,ToastAndroid, TextInput,Navigator, StatusBar,Image,StyleSheet, Button, Dimensions, TouchableOpacity,TouchableHighlight,Modal } from 'react-native';
+ import { toastShort } from "../../utils/ToastUtils"
 
 export default class Suggestion extends Component {
     constructor(props){
@@ -8,9 +9,25 @@ export default class Suggestion extends Component {
         this.state = {
             boxVisibile : this.props.showBox,
             inputValue : null,
+            toastVisible: false
         }
+
+
+
     }
+
+
+    componentDidMount() {
+
+    };
+
+    setToastVisible(visible){
+        this.setState({toastVisible: visible});
+    }
+
     sendSuggestion(){
+        toastShort("thanks for your suggestion");
+
         console.log(this.state.inputValue);
         const url = `http://localhost/`;
         //this.setState({ loading: true });
@@ -32,14 +49,18 @@ export default class Suggestion extends Component {
 
         return(
             <View>
+
                 <Modal
                     animationType = {'fade'}
                     transparent={true}
                     visible = {this.props.showBox}>
                     <View>
                         {this.inputBox()}
+
                     </View>
+
                 </Modal>
+
             </View>
         )
     }
@@ -48,6 +69,8 @@ export default class Suggestion extends Component {
     inputBox() {
         return(
             <View style={[styles.popScreenSmallBackground]}>
+
+
                 <View style={styles.popScreenSmall}>
                     <View style = {styles.alertText}>
                         <Text style = {styles.pointsContent}> My challenge idea for USC</Text >
@@ -59,13 +82,15 @@ export default class Suggestion extends Component {
                                    autoFocus = "true"
                         />
                 </View>
-                    <TouchableOpacity onPress={()=> {this.props.callbackParent();this.sendSuggestion()}}>
-                        <View style = {styles.ok}>
+                    <TouchableOpacity onPress={()=> {this.props.callbackParent();this.sendSuggestion();  } }>
+                        <View style = {styles.pressArea}>
                             <Text style = {styles.pointsContent}> OK </Text >
                         </View>
                     </TouchableOpacity>
                 </View>
+
             </View>
+
         );
     }
 
@@ -122,13 +147,12 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderWidth:3,
         borderRadius:5,
+        justifyContent: "center"
 
     },
     popScreenSmallBackground:{
         position:'relative',
-        width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
-        flexDirection:'column',
         paddingTop:Dimensions.get('window').height / 4,
         borderWidth:3,
         backgroundColor:  'rgba(0, 0, 0, 0.75)',
@@ -208,15 +232,13 @@ const styles = StyleSheet.create({
         color:'#8CEA4D',
         textAlign:'center',
     },
-    points:{
-        paddingTop:Dimensions.get('window').height / 20,
-        flexDirection:'column',
-        alignItems:'center',
-    },
+
     pointsContent:{
         fontSize: 16,
         color:'white',
         textAlign:'center',
+        paddingTop:5
+
     },
     pointsView:{
         height: Dimensions.get('window').height / 4,
@@ -225,13 +247,16 @@ const styles = StyleSheet.create({
     hintFooter:{
         paddingTop:Dimensions.get('window').height / 3,
     },
-    ok:{
-        paddingTop:9,
+    pressArea:{
+        height: Dimensions.get('window').height / 3 * (1/6),
+        justifyContent:'center',
     },
+    textToast : {
+        zIndex:2,
+    },
+
     alertText:{
-        height: Dimensions.get('window').height / 3.8,
-        paddingTop:Dimensions.get('window').height / 50,
-        paddingBottom:Dimensions.get('window').height / 30,
+        height: Dimensions.get('window').height / 3 * (4/5),
         borderBottomWidth:2,
         borderColor:'white',
     },
