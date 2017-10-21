@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Toast from 'react-native-root-toast';
-import { View, Text,ToastAndroid, TextInput,Navigator, StatusBar,Image,StyleSheet, Button, Dimensions, TouchableOpacity,TouchableHighlight,Modal } from 'react-native';
+import { View, Keyboard,KeyboardAvoidingView,Text,ToastAndroid, TextInput,Navigator, StatusBar,Image,StyleSheet, Button, Dimensions, TouchableOpacity,TouchableHighlight,Modal } from 'react-native';
  import { toastShort } from "../../utils/ToastUtils"
 
 export default class Suggestion extends Component {
@@ -9,7 +9,8 @@ export default class Suggestion extends Component {
         this.state = {
             boxVisibile : this.props.showBox,
             inputValue : null,
-            toastVisible: false
+            toastVisible: false,
+
         }
 
 
@@ -17,9 +18,14 @@ export default class Suggestion extends Component {
     }
 
 
-    componentDidMount() {
+    componentWillUnmount() {
 
-    };
+    }
+
+    componentWillMount() {
+
+    }
+
 
     setToastVisible(visible){
         this.setState({toastVisible: visible});
@@ -27,7 +33,6 @@ export default class Suggestion extends Component {
 
     sendSuggestion(){
         toastShort("thanks for your suggestion");
-
         console.log(this.state.inputValue);
         const url = `http://localhost/`;
         //this.setState({ loading: true });
@@ -68,9 +73,9 @@ export default class Suggestion extends Component {
 
     inputBox() {
         return(
+
             <View style={[styles.popScreenSmallBackground]}>
-
-
+                <KeyboardAvoidingView behavior='position' >
                 <View style={styles.popScreenSmall}>
                     <View style = {styles.alertText}>
                         <Text style = {styles.pointsContent}> My challenge idea for USC</Text >
@@ -88,7 +93,7 @@ export default class Suggestion extends Component {
                         </View>
                     </TouchableOpacity>
                 </View>
-
+                </KeyboardAvoidingView>
             </View>
 
         );
@@ -147,7 +152,7 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderWidth:3,
         borderRadius:5,
-        justifyContent: "center"
+        justifyContent: "center",
 
     },
     popScreenSmallBackground:{
