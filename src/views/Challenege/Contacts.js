@@ -7,6 +7,8 @@ import ScrollableTabView from 'react-native-scrollable-tab-view';
 import ChooseChallenger from '../../views/Challenge/ChallengerChoosePage';
 import challenge from '../../views/Challenge/Challenge';
 
+
+
 import {
   FlatList,
   ScrollView,
@@ -102,119 +104,208 @@ class SelectableContactsList extends Component {
       isSelected: false,
       selected: [],
       contacts: [],
-      phones:[],
+      phoneList:[],
       names:[],
       count: 0,
       count2: 0,
-      status: [],
+      status:[],
       loading2:false,
-
-      clicked : false,
-      index: 0,
+      loading3: false,
+      //clicked : false,
+      clicked:[],
+      //index: 0,
       data:[],
-      page:1,
-      seed:1,
-      error:null,
       loading:false,
-      json:'',
+      allContactPhones:[],
+      picture: false,
+      extra: false,
+      //index: [],
+
       //    showMessage:false,
     };
   }
 //For Members data
 
-  _copyOnPress(item)  {
-    var newState = true;
-    this.setState({clicked:true});
-  }
-  onPress(item,index) {
-    this.setState((state) => Object.assign({}, state,{ clicked: !this.state.clicked },));
-    this.setState({index:index});
-    if(this.state.clicked === true){this.setState({count2:this.state.count2-1})}
-    else{this.setState({count2:this.state.count2+1})}
+  onPress=(item)=>{
+    const clicked = this.state.clicked;
+    const index = clicked.indexOf(item.name.first);
+    this.setState({index: index});
+    if (index === -1) {
+      clicked.push(item.name.first);
+      console.log(this.state.clicked+"yw");
+      this.setState({count2:this.state.count2+1});
+
+
+    } else {
+      clicked.splice(index, 1);
+      console.log(this.state.clicked+"yw");
+      this.setState({count2:this.state.count2-1});
+
+
+    }
+    this.setState({ clicked });
+ //   this.setState({clicked: clickedData});
   }
   renderItemComponent = ({item,index}) => {
     return (
-      <TouchableOpacity onPress={() => this.onPress(item,index)}>
-        <View style={[styles.item,]}>
-          <Text style = {styles.itemText}>{'    '} {item.name.first}{' '}{item.name.last}{'     '}</Text>
-          {this.showHideCheck(index)}
-        </View>
+      <TouchableOpacity
+        onPress={() => this.onPress(item,index)}>
+        <View style={[styles.item]}>
+          <Text style = {styles.itemText}>{'    '} {item.name.first}{' '}{item.name.last}{''}</Text>
+          <Switch value={item.isOn}
+                  onValueChange={(value) =>
+                  {
+                    this._onValueChanged(item,value);
+                  }}/>
+
+          {this.showHideCheck(item,index)}
+          </View>
+
       </TouchableOpacity>
     );
   };
-  showHideCheck(index){
-    if(this.state.index===index && this.state.clicked) {
-      return (
 
-        <Image style={styles.captionImage} source={require('../../images/sign.png')}/>
+  _keyExtractor = (item, index) =>{return index;};
 
-      );
+  isClicked = (item) => {
+    return this.state.clicked.indexOf(item.name.first) !== -1;
+  };
+  showHideCheck = (item)=>{
+    //console.log(this.state.picture+"lalla");
+    if(this.isClicked(item)) {
+    //if(this.state.extra === true){
+     // if(this.state.clicked.length === index) {
+      return (<Image />);
+    }else{
+      return <Image source={require('../../images/sign.png')} />
     }
-    return  <Image style={styles.captionImage}/>
   }
 
-  // makeRemoteRequest = () => {
-  //   const url = `https://randomuser.me/api/?seed=10&page=1&results=20`;
-  //   this.setState({ loading: true });
-  //
-  //   return fetch(url)
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       this.setState({data:responseJson.results});
-  //       this.setState({json:responseJson.results[0].email});
-  //       console.log(responseJson.results[0].email);
-  //     })
-  //     .catch(error => {
-  //       this.setState({ error, loading: false });
-  //     });
-  // };
-  //
 
-  // makeRemoteRequest = () => {
-  //   const url = `http://localhost:8888/competitorCandidates`;
-  //   this.setState({ loading: true });
-  //
-  //   return fetch(url)
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       this.setState({data:responseJson});
-  //     })
-  //     .catch(error => {
-  //       this.setState({ error, loading: false });
-  //     });
-  // };
+  makeRemoteRequest = () => {
+    let url = `https://randomuser.me/api/?seed=10&page=1&results=20`;
+    this.setState({ loading3: true });
+    this.getAllPhones(this.state.contacts);
+    return fetch(url)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({data:responseJson.results});
+      })
+      .catch(error => {
+        throw  error
+      });
+  };
+
+// Funtions that get username in my page
+  userNameRequest = () => {
+    //const url = `http://localhost:8888/getUser`;
+    console.log("userNameRequest");
+    let url = `http://localhost:8888/getUser`;
+    this.setState({ loading: true });
+
+    return fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        //username: this.state.names,
+        // // get userName from parents
+        username: "test2"
+
+
+      })
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({status:responseJson});
+        console.log(this.state.phoneList+"yw");
+      })
+      .catch(error => {
+        throw  error
+      });
+  };
 
 
 
-  // sendPhones(){
-  //     const url = `http://localhost:8888/challengedPhone`;
-  //     this.setState({ loading: true });
-  //     return fetch(url,{
-  //         method: 'POST',
-  //         headers: {
-  //             'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //             username: 'YangTest',
-  //             phones: this.state.phones,
-  //
-  //         })
-  //     })
-  //       .then((response) => response.json())
-  //       .then((responseJson) => {
-  //         this.setState({status:responseJson});
-  //       })
-  //       .catch(error => {
-  //         this.setState({ error, loading2: false });
-  //       });
-  // }
-  //load member data end
-  componentWillMount() {
+  sendPhones(){
+    let date = (new Date().getMonth()+1)+"-"+(new Date().getDate())+"-"+(new Date().getFullYear());
+    //const url = `http://localhost:8888/challengedPhone`;
+    this.setState({ loading2: true });
+    let url = `http://localhost:8888/challengedPhone`;
+
+    return fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        //username: this.state.names,
+        // // get userName from parents
+        //username: this.props.userName,
+        username: "test2",
+        phones: this.state.phoneList,
+        date:date,
+
+
+      })
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({status:responseJson});
+        console.log(this.state.phoneList+"yw");
+      })
+      .catch(error => {
+        throw  error
+      });
+  }
+
+
+  componentDidMount() {
     this.getContacts();
-    //this.makeRemoteRequest();
-    // this.getMember();
-  }
+    //this.userNameRequest();
+    this.makeRemoteRequest();
 
+  }
+  // componentWillMount() {
+  //   this.getContacts();
+  //   //this.userNameRequest();
+  //   this.makeRemoteRequest();
+  //
+  // }
+  getPhoneNumber(contact) {
+    // first try to find a mobile number, then have a chain of other defaults
+    for (let i = 0; i < contact.phoneNumbers.length; i++) {
+      if (contact.phoneNumbers[i].label === 'mobile') {
+        return contact.phoneNumbers[i].number;
+      }
+    }
+
+    for (let i = 0; i < contact.phoneNumbers.length; i++) {
+      if (contact.phoneNumbers[i].label === 'home') {
+        return contact.phoneNumbers[i].number;
+      }
+    }
+
+    for (let i = 0; i < contact.phoneNumbers.length; i++) {
+      if (contact.phoneNumbers[i].label === 'work') {
+        return contact.phoneNumbers[i].number;
+      }
+    }
+
+    for (let i = 0; i < contact.phoneNumbers.length; i++) {
+      if (contact.phoneNumbers[i].label === 'other') {
+        return contact.phoneNumbers[i].number;
+      }
+    }
+
+    // if all else fails, return any number...
+    if (contact.phoneNumbers && contact.phoneNumbers[0] && contact.phoneNumbers[0].number) {
+      return contact.phoneNumbers[0].number;
+    }
+
+    return null;
+  }
   getContacts() {
     Contacts.getAll((err, contacts) => {
       if (err && err.type === 'permissionDenied') {
@@ -251,7 +342,6 @@ class SelectableContactsList extends Component {
           }
           return 0;
         });
-
         for (let j = 0; j < contacts.length; j++) {
           let contact = contacts[j];
           let firstLetter = contact.name[0].toUpperCase();
@@ -269,38 +359,15 @@ class SelectableContactsList extends Component {
       }
     });
   }
-  getPhoneNumber(contact) {
-    // first try to find a mobile number, then have a chain of other defaults
-    for (let i = 0; i < contact.phoneNumbers.length; i++) {
-      if (contact.phoneNumbers[i].label === 'mobile') {
-        return contact.phoneNumbers[i].number;
-      }
+  getAllPhones(allContact){
+    let allPhones;
+    for (let j = 0; j < allContact.length; j++) {
+      let contact = allContact[j];
+      //store all contact list phones
+      allPhones = this.state.allContactPhones;
+      allPhones.push(this.getPhoneNumber(contact).replace(/\D/g,''));
     }
-
-    for (let i = 0; i < contact.phoneNumbers.length; i++) {
-      if (contact.phoneNumbers[i].label === 'home') {
-        return contact.phoneNumbers[i].number;
-      }
-    }
-
-    for (let i = 0; i < contact.phoneNumbers.length; i++) {
-      if (contact.phoneNumbers[i].label === 'work') {
-        return contact.phoneNumbers[i].number;
-      }
-    }
-
-    for (let i = 0; i < contact.phoneNumbers.length; i++) {
-      if (contact.phoneNumbers[i].label === 'other') {
-        return contact.phoneNumbers[i].number;
-      }
-    }
-
-    // if all else fails, return any number...
-    if (contact.phoneNumbers && contact.phoneNumbers[0] && contact.phoneNumbers[0].number) {
-      return contact.phoneNumbers[0].number;
-    }
-
-    return null;
+    this.setState({allContactPhones:allPhones});
   }
   onSelectContact(contact) {
     let selected;
@@ -313,25 +380,42 @@ class SelectableContactsList extends Component {
     if (contactRemoved.length === currentlySelected.length) {
       selected = currentlySelected;
       this.setState({count: this.state.count+1});
-      selectedPhone = this.state.phones;
+      selectedPhone = this.state.phoneList;
       selectedPhone.push(this.getPhoneNumber(contact).replace(/\D/g,''));
-      this.setState({phones:selectedPhone});
+      this.setState({phoneList:selectedPhone});
       selected.push(contact);
-
     } else {
       selected = contactRemoved;
       this.setState({count: this.state.count-1});
-      selectedPhone = this.state.phones;
+      selectedPhone = this.state.phoneList;
       var findindex = this.getPhoneNumber(contact).replace(/\D/g,'');
-      let index = selectedPhone.indexOf(findindex);
+      let indexs = selectedPhone.indexOf(findindex);
 
-      selectedPhone.splice(0,1);
-      this.setState({phones:selectedPhone});
+      selectedPhone.splice(indexs,1);
+      this.setState({phoneList:selectedPhone});
     }
     this.setState({ selected: selected });
   }
 
-
+  resetCount(){
+    this.setState ({
+      isSelected: false,
+      selected: [],
+      phoneList:[],
+      names:[],
+      count: 0,
+      count2: 0,
+      status: [],
+      loading:false,
+      loading2:false,
+      loading3:false,
+      //clicked : false,
+      clicked:[],
+      //index: 0,
+      //data:[],
+      //    showMessage:false,
+    });
+  }
   getCellProps() {
     var cellProps = { onSelectContact: cellsection => this.onSelectContact(cellsection)};
 
@@ -351,7 +435,7 @@ class SelectableContactsList extends Component {
     this.props.callbackfromContacts(false);
   }
 
-  _keyExtractor = (item, index) => item.name.first;
+
 
 
   render() {
@@ -360,10 +444,8 @@ class SelectableContactsList extends Component {
         visible={this.props.showContact}
       >
         <View style={{ flex: 1 }}>
-
-
           <View style={styles.firstView}>
-            <TouchableOpacity  onPress={() => {this.clickBack()}} >
+            <TouchableOpacity  onPress={() => {this.clickBack(), this.resetCount()}} >
               <Text style={styles.cancelButton}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.midTitle}>Challenge</Text>
@@ -375,7 +457,22 @@ class SelectableContactsList extends Component {
                              tabBarActiveTextColor='#4A90E2'
                              tabBarInactiveTextColor='black'
                              tabBarTextStyle={{fontSize: 18 ,fontFamily: 'AVENIR'}}
+
           >
+            <FlatList tabLabel="Members"
+                      style = {styles.list}
+                      data = {this.state.data}
+                      extraData={this.state.clicked}
+                      keyExtractor = {this._keyExtractor}
+                      renderItem = {this.renderItemComponent}
+                      ItemSeparatorComponent = { ItemDivideComponent }
+
+              // getItemLayout = {(data,index)=>(
+              //   {length: ITEM_HEIGHT, offset: (ITEM_HEIGHT + 1) * index, index}
+              // )}
+
+            />
+
             <AlphabetListView tabLabel="Friends"
                               data={this.state.contacts}
                               cell={Cell}
@@ -385,16 +482,6 @@ class SelectableContactsList extends Component {
                               cellHeight={this.props.cellHeight || 50}
                               sectionHeaderHeight={this.props.sectionHeaderHeight || 22.5}
                               sectionListFontStyle={{fontFamily: 'AVENIR'}}
-            />
-            <FlatList tabLabel="Members"
-                      style = {styles.list}
-                      data = {this.state.data}
-                      renderItem = {this.renderItemComponent}
-                      ItemSeparatorComponent = { ItemDivideComponent }
-                      keyExtractor = {this._keyExtractor}
-                      getItemLayout = {(data,index)=>(
-                        {length: ITEM_HEIGHT, offset: (ITEM_HEIGHT + 1) * index, index}
-                      )}
 
             />
 
@@ -404,16 +491,17 @@ class SelectableContactsList extends Component {
           <View style={styles.thirdView}>
             <Text
               //style={styles.currentText}>{this.state.count+this.state.count2}</Text>
-              style={styles.currentText}>{this.state.count}</Text>
+              style={styles.currentText}>{this.state.count+this.state.count2}</Text>
             <TouchableOpacity onPress={
               ()=> {
-                // Communications.text('3235946776','You got a challenge invitation, download populic to check details');
-                // Alert.alert(
-                //    // this.state.count+this.state.count2+` Invitation(s) Sent`+this.state.phones
-                //     this.state.phones.toString()
-                // )
-                //{this.clickBack()};this.sendPhones()
-                {this.clickBack()}
+                //  Alert.alert(
+                //    //this.state.count+this.state.count2+` Invitation(s) Sent`+this.state.phones
+                //    //this.state.phoneList.toString()
+                // this.state.names.toString()
+                //  )
+                {this.sendPhones()};
+                {this.clickBack()};
+                {this.resetCount()};
               }
             } >
               <Text
@@ -438,9 +526,6 @@ class ItemDivideComponent extends Component {
     );
   }
 };
-/*SelectableContactsList.propTypes = {
-    onSelectContact: PropTypes.func.isRequired,
-};*/
 
 const styles = StyleSheet.create({
   indicatorContainer: {
