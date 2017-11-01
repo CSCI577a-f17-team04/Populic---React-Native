@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Toast from 'react-native-root-toast';
 import { View, Keyboard,KeyboardAvoidingView,Text,ToastAndroid, TextInput,Navigator, StatusBar,Image,StyleSheet, Button, Dimensions, TouchableOpacity,TouchableHighlight,Modal } from 'react-native';
  import { toastShort } from "../../utils/ToastUtils"
-
+import { SERVER } from '../../config/server';
 export default class Suggestion extends Component {
     constructor(props){
         super(props);
@@ -33,8 +33,10 @@ export default class Suggestion extends Component {
 
     sendSuggestion(){
         toastShort("thanks for your suggestion");
-        console.log(this.state.inputValue);
-        const url = `http://localhost/`;
+
+        console.log("user input:" + this.state.inputValue );
+        let date = (new Date().getMonth()+1)+"-"+(new Date().getDate())+"-"+(new Date().getFullYear());
+        const url = `${SERVER}/submitIdea`;
         //this.setState({ loading: true });
         return fetch(url,{
             method: 'POST',
@@ -42,7 +44,10 @@ export default class Suggestion extends Component {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                suggestion: this.state.inputValue,
+                challengeName: null,
+                description: this.state.inputValue,
+                date: date,
+                image: null,
             })
         }).catch(error => {
                 throw  error
