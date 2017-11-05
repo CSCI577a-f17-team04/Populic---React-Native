@@ -258,7 +258,7 @@ var Challenge = React.createClass({
                 me: responseJson[0].nickname,
                 competitor: responseJson[1].nickname
               });
-              if(this.state.username == "test1"){
+              if(this.state.username == "test2"){
                 this.setState ({me: this.state.left});
                 this.setState ({competitor: this.state.right});
              }else{
@@ -270,6 +270,7 @@ var Challenge = React.createClass({
               this.setState({ error, loading: false });
           });
   },
+  
   //------------------------------------------------------------------------
   // addpOST interface
    // pull chanllenege information to addPost ********************************************
@@ -286,9 +287,9 @@ var Challenge = React.createClass({
           body: JSON.stringify({
 
               username: "test2",
-              img: this.state.imgURL,
+              image: this.state.imgURL,
               date: "10-20-2017",
-              isChallenge: "true",
+              isChallenge: true,
               time: this.showFixTime()
               
           }),
@@ -307,6 +308,7 @@ var Challenge = React.createClass({
           this.setState({ error, loading: false });
       });
   },
+
   // //------------------------------------------------------------------------
 
   // // getImage 
@@ -322,7 +324,7 @@ var Challenge = React.createClass({
           },
           body: JSON.stringify({
 
-              username: "test3",  
+              username: "test2",  
               date: "10-20-2017"
           }),
       })
