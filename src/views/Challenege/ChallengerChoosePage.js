@@ -19,6 +19,7 @@ export default class ChooseChallenger extends Component {
             whoToPair:{username:'',nickname:''},
             data:[],//the data got when "go"  button in list page is clicked
             newData:[],//will be updated iff data is changed and data is not empty.
+            clicked:false,
         };
     }
 
@@ -74,7 +75,7 @@ export default class ChooseChallenger extends Component {
     makeRemoteRequest = () => {
         // const { page, seed } = this.state;
         // const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
-        const url = `http://localhost:8888/getCompetitor`;
+        const url = `http://104.236.189.217:8888/getCompetitor`;
         this.setState({ loading: true });
 
         return fetch(url,{
@@ -83,7 +84,7 @@ export default class ChooseChallenger extends Component {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                challengee: "test2",
+                challengee: this.props.myUsername,
                 challenger: this.state.whoToPair.username,
                 date:"10-20-2017",
             }),
@@ -99,6 +100,8 @@ export default class ChooseChallenger extends Component {
                 }else{
                     var d = this.state.data;
                     this.setNewData(d);
+                    this.setState({clicked:false});
+                    this.setState({showGo:false});
                     this.setState({alertModalVisible:true});
                 }
 
@@ -131,6 +134,10 @@ export default class ChooseChallenger extends Component {
             );
     }
 
+    setClicked = (isClicked)=>{
+      this.setState({clicked:isClicked});
+    }
+
     showList(){
         return(
             <View>
@@ -144,7 +151,7 @@ export default class ChooseChallenger extends Component {
                     <Text style = {styles.headerText}>   Pick a competitor</Text>
                 </View>
                 <View>
-                    <ChallengerList callbackParent = {this.onClickPerson} updateData = {this.setNewData} data = {this.state.newData}/>
+                    <ChallengerList callbackParent = {this.onClickPerson} updateData = {this.setNewData} data = {this.state.newData} myUsername = {this.props.myUsername} anyClicked = {this.state.clicked} setClicked = {this.setClicked}/>
                 </View>
                 <View style = {styles.listBottomSeparator}>
                 </View>

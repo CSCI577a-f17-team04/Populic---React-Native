@@ -9,7 +9,6 @@ export default class ChallengerList extends Component{
         super(props);
         this.state = {
             ItemColor: '#0883b1',
-            clicked : false,
             index: 0,
             data:this.props.data,
             error:null,
@@ -27,7 +26,7 @@ export default class ChallengerList extends Component{
         // this.setState({ItemColor:'#3a99bb'});
         // alert("you choose " + item.key);
         var newState = true;
-        this.setState({clicked:true});
+        this.props.setClicked(true);
         this.setState({index:index});
         this.setState({person:{username:item.username,
                                 nickname:item.nickname}
@@ -46,7 +45,7 @@ export default class ChallengerList extends Component{
 
                     onPress={() => this._onPress(item, index)}>
                     <View
-                        style={[styles.item, (this.state.index === index) && this.state.clicked && {backgroundColor: '#8CEA4D'}]}>
+                        style={[styles.item, (this.state.index === index) && this.props.anyClicked && {backgroundColor: '#8CEA4D'}]}>
                         <Text style={styles.itemText}>{'      '} {item.nickname}</Text>
                         {/*{this.showHideCheck(index)}*/}
                     </View>
@@ -61,7 +60,7 @@ export default class ChallengerList extends Component{
     makeRemoteRequest = () => {
         // const { page, seed } = this.state;
         // const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
-        const url = `http://localhost:8888/competitorCandidates`;
+        const url = `http://104.236.189.217:8888/competitorCandidates`;
         this.setState({ loading: true });
 
         return fetch(url,{
@@ -70,7 +69,7 @@ export default class ChallengerList extends Component{
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                challengee: "test2",
+                challengee: this.props.myUsername,
                 date:"10-20-2017",
             }),
         })
