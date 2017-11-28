@@ -1,13 +1,14 @@
 import React, { Component, PropTypes,TabBarIOS } from 'react';
 import Contacts from 'react-native-contacts';
-//import Communications from 'react-native-communications';
 import AlphabetListView from 'react-native-alphabetlistview';
 import {Navigator} from 'react-native-deprecated-custom-components'
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import ChooseChallenger from '../../views/Challenge/ChallengerChoosePage';
 import challenge from '../../views/Challenge/Challenge';
 import FCM from "react-native-fcm";
-import axios from 'axios';
+//import axios from 'axios';
+import * as challengeAPI from "../../constant/string"
+import SendSMS from 'react-native-sms'
 
 
 import {
@@ -119,8 +120,6 @@ class SelectableContactsList extends Component {
       data:[],
       loading:false,
       allContactPhones:[],
-      picture: false,
-      extra: false,
       test: [],
       fullname: "yang",
       nick: "yangtest",
@@ -131,19 +130,111 @@ class SelectableContactsList extends Component {
       nicktest: "testcontact",
       passwordtest: "123456",
       fullnametest: "Iamtest",
-      phonetest: "+12137066963"
+      phonetest: "+12137066963",
+      notifcationList:[],
+      message: "",
+      remoteNUser:[],
+      description: "fire in the hole",
+      //send friend phone
+      backendfriendphone:[],
+      myUsername:challengeAPI.userName,//the user's username
+      sms:[],
+
     };
   }
 //For Members data
+  resetCount(){
+    this.setState ({
+      isSelected: false,
+      selected: [],
+      phoneList:[],
+      names:[],
+      count: 0,
+      count2: 0,
+      status: [],
+      loading:false,
+      loading2:false,
+      loading3:false,
+      clicked:[],
+      remoteNUser:[],
+      backendfriendphone:[],
+      remoteNUser:[],
+      notifcationList:[],
+      sms:[],
+      //    showMessage:false,
+    });
+  }
 
+  resetCount2(){
+    this.setState ({
+      contacts: [],
+      isSelected: false,
+      selected: [],
+      phoneList:[],
+      names:[],
+      count: 0,
+      count2: 0,
+      status: [],
+      loading:false,
+      loading2:false,
+      loading3:false,
+      clicked:[],
+      remoteNUser:[],
+      backendfriendphone:[],
+      remoteNUser:[],
+      notifcationList:[],
+      sms:[],
+      //    showMessage:false,
+    });
+  }
+  sendNotification(){
+    console.log("test notification"+this.state.notifcationList + "      "+this.state.count+"       "+this.state.count2);
+    let fake;
+    fake = this.state.remoteNUser;
+    fake.push("test1");
+    fake.push("test2");
+    fake.push("test3");
+    fake.push("test4");
+    fake.push("test5");
+    //fake.push("yangtest");
+    this.setState({remoteNUser:fake})
+    if((this.state.count2) > 0){
+      //console.log("test notification"+this.state.notifcationList );
+      console.log("test notification name:  "+this.state.remoteNUser );
+      console.log("test notification description:  "+this.state.description );
 
+      // let notmsgs = this.state.message;
+      // notmsgs = this.state.nick + " send a invitation"
+
+      let url = `http://104.236.189.217:8888/sendNotification`;
+      return fetch(url,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: this.state.notifcationList,
+          //username: this.state.remoteNUser,
+          description: "You got invitation from " + this.state.myUsername + ". Go to complete the challenge!",
+        })
+      })
+        //.then((response) => response.json())
+        .then((response) => {
+          console.log("test notification"+response.toString());
+        })
+        .catch(error => {
+          console.log(error+"test notification");
+          throw error;
+        });
+    }
+  }
 
   sendPhones(){
     let date = (new Date().getMonth()+1)+"-"+(new Date().getDate())+"-"+(new Date().getFullYear());
     //const url = `http://localhost:8888/challengedPhone`;
     this.setState({ loading2: true });
     let url = `http://104.236.189.217:8888/challengedPhone`;
-    console.log(this.state.phoneList+"test");
+    console.log(this.state.phoneList+"sendPhone");
 
     return fetch(url,{
       method: 'POST',
@@ -151,8 +242,9 @@ class SelectableContactsList extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: this.state.userNickName,
+        username: this.state.myUsername,
         phones: this.state.phoneList,
+       // xxxxx: this.state.backendfriendphone,
         date:date,
       })
     })
@@ -163,6 +255,35 @@ class SelectableContactsList extends Component {
       })
       .catch(error => {
         console.log(error+"test sendPhones");
+        throw error;
+      });
+  }
+
+  challengeOthers(){
+    let date = (new Date().getMonth()+1)+"-"+(new Date().getDate())+"-"+(new Date().getFullYear());
+
+    let url = `http://104.236.189.217:8888/challengeOthers`;
+    console.log(this.state.phoneList+"challengeOthers");
+
+    return fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: this.state.myUsername,
+        phones: this.state.backendfriendphone,
+        challengees: this.state.notifcationList,
+        date:date,
+      })
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({status:responseJson});
+        console.log(responseJson+"test challengeOthers");
+      })
+      .catch(error => {
+        console.log(error+"test challengeOthers");
         throw error;
       });
   }
@@ -178,9 +299,13 @@ class SelectableContactsList extends Component {
       local: true,
   });
   }
+
+
+
   onSelectContact(contact) {
     let selected;
     let selectedPhone;
+    //let selectedPhone2;
     let currentlySelected = this.state.selected;
 
     let contactRemoved = currentlySelected.filter(
@@ -190,17 +315,26 @@ class SelectableContactsList extends Component {
       selected = currentlySelected;
       this.setState({count: this.state.count+1});
       selectedPhone = this.state.phoneList;
-      selectedPhone.push("+1"+this.getPhoneNumber(contact).replace(/\D/g,''));
+      selectedPhone2 = this.state.sms;
+      if(this.getPhoneNumber(contact) != null) {
+        selectedPhone.push("+1" + this.getPhoneNumber(contact).replace(/\D/g, ''));
+        selectedPhone2.push("+1" + this.getPhoneNumber(contact).replace(/\D/g, ''));
+      }
       this.setState({phoneList:selectedPhone});
+      this.setState({sms:selectedPhone2});
       selected.push(contact);
     } else {
       selected = contactRemoved;
       this.setState({count: this.state.count-1});
       selectedPhone = this.state.phoneList;
+      selectedPhone2 = this.state.sms;
       var findindex = "+1"+this.getPhoneNumber(contact).replace(/\D/g,'');
       let indexs = selectedPhone.indexOf(findindex);
+      let indexs2 = selectedPhone2.indexOf(findindex);
       selectedPhone.splice(indexs,1);
+      selectedPhone2.splice(indexs2,1);
       this.setState({phoneList:selectedPhone});
+      this.setState({sms:selectedPhone2});
     }
     this.setState({ selected: selected });
   }
@@ -209,38 +343,62 @@ class SelectableContactsList extends Component {
     let name = this.state.friendUsername;
     let indexs = name.indexOf(nickname);
     console.log("findphone: " + indexs);
+    console.log("findphone: " + this.state.friendPhone);
     phone = this.state.friendPhone[indexs];
     console.log("findphone: " + phone.toString())
-
     return phone;
   }
+
   onPress=(item)=>{
     const clicked = this.state.clicked;
     const index = clicked.indexOf(item);
     let selectedPhone;
+    let selectedPhoneList;
+
     let findphone;
+    let notificationlist; // nickname list for notification
     this.setState({index: index});
     if (index === -1) {
       clicked.push(item);
       console.log(this.state.clicked+"yw");
-      selectedPhone = this.state.phoneList;
+      selectedPhone = this.state.backendfriendphone;
+      selectedPhoneList = this.state.phoneList;
+      notificationlist = this.state.notifcationList;
       findphone = this.findFriendsPhone(item);
-      selectedPhone.push(findphone);
-      this.setState({phoneList:selectedPhone});
+      if(item != this.state.myUsername) {
+        notificationlist.push(item);
+        selectedPhone.push(findphone);
+        selectedPhoneList.push(findphone);
+      }
+      this.setState({notificationList:notificationlist});
+      this.setState({phoneList:selectedPhoneList})
+      console.log('testList:'+ this.state.notificationList);
+      this.setState({backendfriendphone:selectedPhone});
       this.setState({count2:this.state.count2+1});
     } else {
       clicked.splice(index, 1);
       console.log(this.state.clicked+"yw");
-      selectedPhone = this.state.phoneList;
+      selectedPhone = this.state.backendfriendphone;
+      notificationlist = this.state.notifcationList;
+      selectedPhoneList = this.state.phoneList;
+
+      let nameindex = notificationlist.indexOf(item);
       //1. find phone number
       findphone = this.findFriendsPhone(item);
       //2. find index of this phone number
       let indexs = selectedPhone.indexOf(findphone);
+      let indexss = selectedPhoneList.indexOf(findphone);
       //3. delete this phone number
       selectedPhone.splice(indexs,1);
-      this.setState({phoneList:selectedPhone});
+      selectedPhoneList.splice(indexss,1);
+      notificationlist.splice(nameindex,1);
+      this.setState({notificationList:notificationlist});
+      console.log('testList:'+ this.state.notificationList);
+      this.setState({phoneList:selectedPhoneList})
+      this.setState({backendfriendphone:selectedPhone});
       this.setState({count2:this.state.count2-1});
     }
+    console.log("test +2:  "+this.state.phoneList);
     this.setState({ clicked });
     //   this.setState({clicked: clickedData});
   }
@@ -292,7 +450,7 @@ class SelectableContactsList extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log('friendstest response:'+ responseJson.data.friends[0].username);
+        console.log('friendstest response:'+ responseJson.data);
         this.setState({dataUser:responseJson.data});
         this.handleFriendsData(responseJson.data);
 
@@ -317,9 +475,15 @@ class SelectableContactsList extends Component {
       console.log("handleFriendsData3: ", dataUser.friends[i].id);
     }
     this.setState({friendUsername:friendName})
+    this.setState({friendPhone:friendPh})
+    this.setState({friendId:friendId})
+
     console.log("handleFriendsData:  " + friendName)
     console.log("handleFriendsData:  " + this.state.friendUsername)
   }
+
+
+
 
 
 // Function to get username in my page
@@ -354,74 +518,105 @@ class SelectableContactsList extends Component {
     console.log(this.state.password);
     console.log(this.state.fullname);
     console.log(this.state.phone);
-    // let url = 'http://52.56.146.122:3000/auth/registerUser';
-    // return fetch(url, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     //'Authorization': "Bearer " + this.state.userToken // add token here
-    //   },
-    //   body: JSON.stringify({
-    //       username: this.state.nicktest,
-    //       password: this.state.passwordtest,
-    //       fullname: this.state.fullnametest,
-    //       phone: this.state.phonetest,
-    //
-    //   })
-    // })
-    //   .then((response) => response.json())
-    //   .then((responseJson) => {
-    //     console.log('register response:'+ responseJson.status.msg);
-    //   })
-    //   .catch(error => {
-    //     console.log('register catch:'+ error);
-    //     throw  error
-    //   });
-    axios.post('http://52.56.146.122:3000/api/auth/registerUser', {
+    let url = 'http://52.56.146.122:3000/api/auth/registerUser';
+    return fetch(url, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-    },
-      data:{
-      // username: this.state.nick,
-      // password: this.state.password,
-      // fullname: this.state.fullname,
-      // phone: this.state.phone
-      username: "testcontact",
-      password: "123456",
-      fullname: "Iamtest",
-      phone: "+12137066963"
-    }})
-      .then(function (response) {
-        console.log("User registered: ", response);
+        //'Authorization': "Bearer " + this.state.userToken // add token here
+      },
+      body: JSON.stringify({
+          username: "guanghetest",
+          password: "123456",
+          fullname: "guanghe",
+          phone: "+12223334444"
+
       })
-      .catch(function (error) {
-        console.log("Could not register user: ", error);
+    })
+      //.then((response) => response.json())
+      .then((response) => {
+        console.log('register response:'+ response.status.msg);
+      })
+      .catch(error => {
+        console.log('register catch:'+ error);
+        throw  error
       });
+    // axios.post('http://52.56.146.122:3000/api/auth/registerUser', {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    // },
+    //   data:{
+    //   // username: this.state.nick,
+    //   // password: this.state.password,
+    //   // fullname: this.state.fullname,
+    //   // phone: this.state.phone
+    //   username: "testcontact",
+    //   password: "123456",
+    //   fullname: "Iamtest",
+    //   phone: "+12137066963"
+    // }})
+    //   .then(function (response) {
+    //     console.log("User registered: ", response);
+    //   })
+    //   .catch(function (error) {
+    //     console.log("Could not register user: ", error);
+    //   });
   }
 
   // function to login and get token.
   loginUser = () => {
-    axios.post('http://52.56.146.122:3000/api/auth/authUser', {
-      username: this.state.nick,
-      password: this.state.password
-    })
-      .then((response) => {
-        console.log("login: check response ", response);
-        if (response.data.status.status === 'success') {
-          this.setState({userToken:response.data.data.token, userNickName:response.data.data.user.username},
-            function(){
-            this.makeRemoteRequest();
-          })
-          console.log("longin: ID: ", this.state.userToken);
-          console.log("longin: ID: ", this.state.userNickName);
-
-        } else if (response.data.status.status === 'error') {
-          alert("login: Wrong username or password.");
-        }
+    let url  = 'http://52.56.146.122:3000/api/auth/authUser';
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          username: this.state.nick,
+          password: this.state.password
       })
-      .catch(function (error) {
-        console.log("login: Could not log in: ", error);
+    })
+      .then((response) => response.json())
+      .then((response) => {
+            console.log("login: check response ", response);
+            if (response.status.status === 'success') {
+              this.setState({userToken:response.data.token, userNickName:response.data.user.username},
+                function(){
+                this.makeRemoteRequest();
+              })
+              console.log("longin: ID: ", this.state.userToken);
+              console.log("longin: ID: ", this.state.userNickName);
+
+            } else if (response.data.status.status === 'error') {
+              alert("login: Wrong username or password.");
+            }
+
+      })
+      .catch(error => {
+        console.log('friendstest catch:'+ error);
+        throw  error
       });
+    // axios.post('http://52.56.146.122:3000/api/auth/authUser', {
+    //   username: this.state.nick,
+    //   password: this.state.password
+    // })
+    //   .then((response) => {
+    //     console.log("login: check response ", response);
+    //     if (response.data.status.status === 'success') {
+    //       this.setState({userToken:response.data.data.token, userNickName:response.data.data.user.username},
+    //         function(){
+    //         this.makeRemoteRequest();
+    //       })
+    //       console.log("longin: ID: ", this.state.userToken);
+    //       console.log("longin: ID: ", this.state.userNickName);
+    //
+    //     } else if (response.data.status.status === 'error') {
+    //       alert("login: Wrong username or password.");
+    //     }
+    //   })
+    //   .catch(function (error) {
+    //     console.log("login: Could not log in: ", error);
+    //   });
   }
 
   componentWillMount() {
@@ -515,8 +710,10 @@ class SelectableContactsList extends Component {
           } else {
             groups[firstLetter].push(contact);
             phoneGroups[firstLetter].push(contact.phone);
+            if(this.getPhoneNumber(contact) != null){
             allPhones = this.state.allContactPhones;
             allPhones.push('+1' + this.getPhoneNumber(contact).replace(/\D/g, ''));
+            }
           }
         }
         allPhones.push('+358469630138');
@@ -530,22 +727,7 @@ class SelectableContactsList extends Component {
 
 
 
-  resetCount(){
-    this.setState ({
-      isSelected: false,
-      selected: [],
-      phoneList:[],
-      names:[],
-      count: 0,
-      count2: 0,
-      status: [],
-      loading:false,
-      loading2:false,
-      loading3:false,
-      clicked:[],
-      //    showMessage:false,
-    });
-  }
+
   getCellProps() {
     var cellProps = { onSelectContact: cellsection => this.onSelectContact(cellsection)};
 
@@ -566,7 +748,45 @@ class SelectableContactsList extends Component {
     this.props.callbackfromContacts(false);
 
   }
+  someFunction() {
+    //if(this.state.phoneList.length > this.state.notifcationList && this.state.phoneList.length > 0) {
+    if(this.state.sms.length  > 0) {
+      console.log('SMS Callback is on ')
+      SendSMS.send({
+        body: this.state.userNickName+' send your an invitation!',
+        //recipients: ['3235946776'],
+        recipients: this.state.sms,
+        successTypes: ['sent']
+      }, (completed, cancelled, error) => {
 
+        console.log('SMS Callback: completed: ' + completed + ' cancelled: ' + cancelled + 'error: ' + error);
+        if (completed == true)
+          {
+            this.clickBack();
+            this.resetCount();
+          }
+          if(cancelled == true){
+            //this.clickBack();
+            this.resetCount2();
+            this.getContacts();
+
+            //this.clickBack();
+          }
+          if(error == true){
+            this.resetCount2();
+            this.getContacts();
+           // this.clickBack();
+
+
+          }
+
+
+      });
+    }else{
+      this.clickBack();
+      this.resetCount();
+    }
+  }
 
 
 
@@ -590,6 +810,7 @@ class SelectableContactsList extends Component {
                              tabBarActiveTextColor='#4A90E2'
                              tabBarInactiveTextColor='black'
                              tabBarTextStyle={{fontSize: 18 ,fontFamily: 'AVENIR'}}
+                             scrollWithoutAnimation={true}
 
           >
             <FlatList tabLabel="Friends"
@@ -599,6 +820,8 @@ class SelectableContactsList extends Component {
                       keyExtractor = {this._keyExtractor}
                       renderItem = {this.renderItemComponent}
                       ItemSeparatorComponent = { ItemDivideComponent }
+                      ListFooterComponent = {ItemDivideComponent}
+
 
             />
 
@@ -625,9 +848,13 @@ class SelectableContactsList extends Component {
                  //   //this.state.phoneList.toString()
                  //   this.state.allContactPhones.toString()
                  // )
+
                 {this.sendPhones()};
-                {this.clickBack()};
-                {this.resetCount()};
+                {this.challengeOthers();}
+                {this.sendNotification()};
+
+                {this.someFunction()};
+
               }
             } >
               <Text
